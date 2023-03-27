@@ -1,4 +1,4 @@
-package iter
+package utils
 
 type Iterator[T any] interface {
 	Next() bool
