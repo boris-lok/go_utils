@@ -3,8 +3,6 @@ package iter
 type Iterator[T any] interface {
 	Next() bool
 	Item() T
-	Filter(pred func(T) bool) Iterator[T]
-	Collect() []T
 }
 
 type SliceIterator[T any] struct {
@@ -26,31 +24,27 @@ func (s *SliceIterator[T]) Item() T {
 	return s.item
 }
 
-func (s *SliceIterator[T]) Filter(pred func(T) bool) Iterator[T] {
-	return &FilterIterator[T]{
-		source:    s,
-		predicate: pred,
-	}
+type MappingIterator[T any, U any] struct {
+	s      Iterator[T]
+	mapper func(T) U
 }
 
-func (s *SliceIterator[T]) Collect() []T {
-	var res []T
+func (m *MappingIterator[T, U]) Next() bool {
+	return m.s.Next()
+}
 
-	for s.Next() {
-		res = append(res, s.Item())
-	}
-
-	return res
+func (m *MappingIterator[T, U]) Item() U {
+	return m.mapper(m.s.Item())
 }
 
 type FilterIterator[T any] struct {
-	source    Iterator[T]
-	predicate func(T) bool
+	s    Iterator[T]
+	pred func(T) bool
 }
 
 func (f *FilterIterator[T]) Next() bool {
-	for f.source.Next() {
-		if f.predicate(f.source.Item()) {
+	for f.s.Next() {
+		if f.pred(f.s.Item()) {
 			return true
 		}
 	}
@@ -58,28 +52,35 @@ func (f *FilterIterator[T]) Next() bool {
 }
 
 func (f *FilterIterator[T]) Item() T {
-	return f.source.Item()
-}
-
-func (f *FilterIterator[T]) Filter(pred func(T) bool) Iterator[T] {
-	return &FilterIterator[T]{
-		source:    f,
-		predicate: pred,
-	}
-}
-
-func (f *FilterIterator[T]) Collect() []T {
-	var res []T
-
-	for f.Next() {
-		res = append(res, f.Item())
-	}
-
-	return res
+	return f.s.Item()
 }
 
 func IntoIterator[T any](elements []T) Iterator[T] {
 	return &SliceIterator[T]{
 		Elements: elements,
 	}
+}
+
+func Map[T any, U any](mapper func(T) U, iter Iterator[T]) Iterator[U] {
+	return &MappingIterator[T, U]{
+		s:      iter,
+		mapper: mapper,
+	}
+}
+
+func Filter[T any](pred func(T) bool, iter Iterator[T]) Iterator[T] {
+	return &FilterIterator[T]{
+		s:    iter,
+		pred: pred,
+	}
+}
+
+func Collect[T any](iter Iterator[T]) []T {
+	var res []T
+
+	for iter.Next() {
+		res = append(res, iter.Item())
+	}
+
+	return res
 }
