@@ -84,3 +84,13 @@ func Collect[T any](iter Iterator[T]) []T {
 
 	return res
 }
+
+func Reduce[T any, U any](initial U, reducer func(U, T) U, iter Iterator[T]) U {
+	var initialValue = initial
+
+	for iter.Next() {
+		initialValue = reducer(initialValue, iter.Item())
+	}
+
+	return initialValue
+}
