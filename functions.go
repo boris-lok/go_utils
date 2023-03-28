@@ -73,3 +73,22 @@ func Reduce[T any, U any](initial U, reducer func(U, T) U, iter Iterator[T]) U {
 
 	return initialValue
 }
+
+// FirstWhere find the first element which is match the predicate function
+// Usage:
+// ```
+// var numbers []int = []int {1,2,3}
+// iter := IntoIterator(numbers)
+// res := FirstWhere(func (x int) bool { return x % 2 == 1 }, iter)
+// ```
+func FirstWhere[T any](pred func(T) bool, iter Iterator[T]) (T, error) {
+	var res T
+
+	for iter.Next() {
+		if pred(iter.Item()) {
+			return iter.Item(), nil
+		}
+	}
+
+	return res, NotFound
+}
