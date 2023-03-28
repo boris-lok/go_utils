@@ -92,3 +92,19 @@ func FirstWhere[T any](pred func(T) bool, iter Iterator[T]) (T, error) {
 
 	return res, NotFound
 }
+
+// Contain check the element is exists in the list
+// Usage:
+// ```
+// var numbers []int = []int {1,2,3}
+// iter := IntoIterator(numbers)
+// isExists := Contain(2, iter)
+// ```
+func Contain[T comparable](target T, iter Iterator[T]) bool {
+	for iter.Next() {
+		if target == iter.Item() {
+			return true
+		}
+	}
+	return false
+}
