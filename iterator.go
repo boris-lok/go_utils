@@ -13,14 +13,22 @@ type SliceIterator[T any] struct {
 	reverse  bool
 }
 
+func (s *SliceIterator[T]) HasNext() bool {
+	return s.index < len(s.Elements) && s.index >= 0
+}
+
+func (s *SliceIterator[T]) UpdateIndex() {
+	if s.reverse {
+		s.index--
+	} else {
+		s.index++
+	}
+}
+
 func (s *SliceIterator[T]) Next() bool {
-	if s.index < len(s.Elements) && s.index >= 0 {
+	if s.HasNext() {
 		s.item = s.Elements[s.index]
-		if s.reverse {
-			s.index--
-		} else {
-			s.index++
-		}
+		s.UpdateIndex()
 		return true
 	}
 	return false
