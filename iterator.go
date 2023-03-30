@@ -77,14 +77,14 @@ func Collect[T any](iter Iterator[T]) []T {
 	return res
 }
 
-// Reduce the elements to a single one.
+// Fold the elements to a single one.
 // Usage:
 // ```
 // var numbers []int = []int {1,2,3}
 // iter := IntoIterator(numbers)
-// ans := Reduce(0, func(prev int, cur int) int { return prev + cur }, iter)
+// ans := Fold(0, func(prev int, cur int) int { return prev + cur }, iter)
 // ```
-func Reduce[T any, U any](initial U, reducer func(U, T) U, iter Iterator[T]) U {
+func Fold[T any, U any](initial U, reducer func(U, T) U, iter Iterator[T]) U {
 	var initialValue = initial
 
 	for iter.Next() {
@@ -92,6 +92,27 @@ func Reduce[T any, U any](initial U, reducer func(U, T) U, iter Iterator[T]) U {
 	}
 
 	return initialValue
+}
+
+// Reduce the elements to a single one.
+// Usage:
+// ```
+// var numbers []int = []int {1,2,3}
+// iter := IntoIterator(numbers)
+// ans := Reduce(func(prev int, cur int) int { return prev + cur }, iter)
+// ```
+func Reduce[T any](reducer func(T, T) T, iter Iterator[T]) T {
+	var res T
+
+	if iter.Next() {
+		res = iter.Item()
+
+		for iter.Next() {
+			res = reducer(res, iter.Item())
+		}
+	}
+
+	return res
 }
 
 // FirstWhere find the first element which is match the predicate function
