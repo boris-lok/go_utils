@@ -17,7 +17,7 @@ func (s *SliceIterator[T]) HasNext() bool {
 	return s.index < len(s.Elements) && s.index >= 0
 }
 
-func (s *SliceIterator[T]) UpdateIndex() {
+func (s *SliceIterator[T]) updateIndex() {
 	if s.reverse {
 		s.index--
 	} else {
@@ -28,7 +28,7 @@ func (s *SliceIterator[T]) UpdateIndex() {
 func (s *SliceIterator[T]) Next() bool {
 	if s.HasNext() {
 		s.item = s.Elements[s.index]
-		s.UpdateIndex()
+		s.updateIndex()
 		return true
 	}
 	return false
